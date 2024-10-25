@@ -17,8 +17,9 @@ class NoteBookViewModel : ViewModel() {
         }
     }
     fun deleteNote(index: Int) {
-        if (index in _notes.indices)
+        if (index in _notes.indices) {
             _notes.removeAt(index)
+        }
     }
 }
 

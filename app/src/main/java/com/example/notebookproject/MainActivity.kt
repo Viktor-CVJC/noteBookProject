@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -74,4 +74,35 @@ fun DetailScreen(navController: NavHostController, viewModel: NoteBookViewModel 
 }
 
 @Composable
-fun CreateEditScreen(navController: NavHostController) { /* going to implement */ }
+fun CreateEditScreen(navController: NavHostController, viewModel: NoteBookViewModel = NoteBookViewModel(), noteIndex: Int? = null) {
+    val isEditing = noteIndex != null
+    val note = if (isEditing) viewModel.notes.getOrNull(noteIndex!!) else null
+
+    var title by remember { mutableStateOf(note?.title ?: "") }
+    var text by remember { mutableStateOf(note?.text ?: "") }
+
+    Scaffold { contentPadding ->
+        Column(modifier = Modifier.padding(contentPadding)) {
+            TextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title") }
+            )
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Text") }
+            )
+            Button(onClick = {
+                if (isEditing) {
+                    viewModel.updateNote(noteIndex!!, title, text)
+                } else {
+                    viewModel.addNote(title, text)
+                }
+                navController.navigateUp()
+            }) {
+                Text(if (isEditing) "Update" else "Create")
+            }
+        }
+    }
+}

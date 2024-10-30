@@ -3,19 +3,15 @@ package com.example.notebookproject
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.icons.filled.ArrowBack
-import androidx.compose.material3.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import android.compose.ui.Alignment
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,32 +38,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoteBookProjectTheme {
                 val navController = rememberNavController()
-                NoteBookNavHost(navController = navController, startDestination = "overview") {
-                    composable("overview") {
-                        OverviewScreen(navController)
-                    }
-                    composable("detail/{noteIndex}") { backStackEntry ->
-                        val noteIndex =
-                            backStackEntry.arguments?.getString("noteIndex")?.toIntOrNull() ?: 0
-                        DetailScreen(navController, noteIndex)
-                    }
-                    composable("create") {
-                        CreateEditScreen(navController)
-                    }
-                    composable("edit/{noteIndex}") { backStackEntry ->
-                        val noteIndex =
-                            backStackEntry.arguments?.getString("noteIndex")?.toIntOrNull() ?: 0
-                        CreateEditScreen(navController, noteIndex)
-                    }
-                }
+                NoteBookNavHost(navController = navController, startDestination = "overview")
             }
         }
     }
 }
 
 @Composable
-fun NoteBookNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "overview") {
+fun NoteBookNavHost(navController: NavHostController, startDestination: String) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
         composable("overview") { OverviewScreen(navController) }
         composable("detail/{noteIndex}") { backStackEntry ->
             val noteIndex = backStackEntry.arguments?.getString("noteIndex")?.toIntOrNull() ?: 0
@@ -101,10 +83,11 @@ fun OverviewScreen(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No notes yet. Tap + to create one.",
+                Text(
+                    "No notes yet. Tap + to create one.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray
                 )
@@ -118,7 +101,7 @@ fun OverviewScreen(navController: NavHostController) {
                 itemsIndexed(viewModel.notes) { index, note ->
                     NoteItem(
                         note = note,
-                        onClick = { navController.navigate("detail/$index") },}
+                        onClick = { navController.navigate("detail/$index") }
                     )
                 }
             }

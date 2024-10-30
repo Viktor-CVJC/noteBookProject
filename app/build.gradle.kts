@@ -1,4 +1,3 @@
-val implementation: Unit
 
 plugins {
     alias(libs.plugins.android.application)
@@ -43,15 +42,15 @@ android {
 }
 
 dependencies {
-    implementation "androidx.compose.material:material-icons-extended:1.5.3"
-    implementation "androidx.compose.material3:material3:1.1.0"
-    implementation "androidx.navigation:navigation-compose:2.7.0"
-    implementation "androidx.lifecycle-viewmodel-compose:2.6.1"
+    implementation (libs.androidx.material.icons.extended)
+    implementation (libs.material3)
+    implementation (libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

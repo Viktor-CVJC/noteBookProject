@@ -9,7 +9,7 @@ class NoteBookViewModel : ViewModel() {
     val notes: List<Note> = _notes
 
     fun addNote(title: String, text: String) {
-        _notes.add(Note(title = title, text = text, timestamp = Date())
+        _notes.add(Note(title = title, text = text, timestamp = Date()))
     }
 
     fun updateNote(index: Int, title: String, text: String) {

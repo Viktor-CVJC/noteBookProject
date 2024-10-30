@@ -81,32 +81,89 @@ fun NoteBookNavHost(navController: NavHostController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OverviewScreen(navController: NavHostController) {
     val viewModel: NoteBookViewModel = viewModel()
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate("create") }) {
-                Text("Add note")
-            }
+        topBar = {
+            TopAppBar(
+                title = { Text("Notes") },
+                actions = {
+                    IconButton(onClick = { navController.navigate("create") }) {
+                        Icon(Icons.Default.Add, "Add note")
+                    }
+                }
+            )
         }
-    ) { contentPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(contentPadding)
-        ) {
-            itemsIndexed(viewModel.notes) { index, note ->
-                Text(
-                    text = note.title,
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("detail/$index")
-                        }
-                        .padding(16.dp)
+    ) { padding ->
+        if (viewModel.notes.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No notes yet. Tap + to create one.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray
                 )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                itemsIndexed(viewModel.notes) { index, note ->
+                    NoteItem(
+                        note = note,
+                        onClick = { navController.navigate("detail/$index") },}
+                    )
+                }
             }
         }
     }
 }
+
+@Composable
+fun NoteItem(note: Note, onClick: () -> Unit) {
+    val dateFormat = remember { SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()) }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = note.title,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = note.text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = dateFormat.format(note.timestamp),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
 @Composable
 fun DetailScreen(navController: NavHostController, noteIndex: Int) {
     val viewModel: NoteBookViewModel = viewModel()

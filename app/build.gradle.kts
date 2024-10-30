@@ -1,7 +1,10 @@
+val implementation: Unit
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
 }
 
 android {
@@ -40,7 +43,13 @@ android {
 }
 
 dependencies {
-
+    implementation "androidx.compose.material:material-icons-extended:1.5.3"
+    implementation "androidx.compose.material3:material3:1.1.0"
+    implementation "androidx.navigation:navigation-compose:2.7.0"
+    implementation "androidx.lifecycle-viewmodel-compose:2.6.1"
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -92,7 +93,32 @@ fun NoteBookNavHost(navController: NavHostController, startDestination: String, 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun NoteTopBar(
+    title: String,
+    showBackButton: Boolean = false,
+    onBackClick: () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
+) {
+    TopAppBar(
+        title = { Text(title) },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        },
+        actions = actions
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun OverviewScreen(navController: NavHostController, viewModel: NoteBookViewModel) {
+    val notes by remember { mutableStateOf(viewModel.notes) }
 
     Scaffold(
         topBar = {
@@ -106,9 +132,7 @@ fun OverviewScreen(navController: NavHostController, viewModel: NoteBookViewMode
             )
         }
     ) { padding ->
-        val notes by remember { mutableStateOf(viewModel.notes) }
-
-        if (viewModel.notes.isEmpty()) {
+        if (notes.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -127,7 +151,7 @@ fun OverviewScreen(navController: NavHostController, viewModel: NoteBookViewMode
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                itemsIndexed(viewModel.notes) { index, note ->
+                itemsIndexed(notes) { index, note ->
                     NoteItem(
                         note = note,
                         onClick = { navController.navigate("detail/$index") }
@@ -180,7 +204,15 @@ fun NoteItem(note: Note, onClick: () -> Unit) {
 fun DetailScreen(navController: NavHostController, viewModel: NoteBookViewModel, noteIndex: Int) {
     val note = viewModel.notes.getOrNull(noteIndex)
 
-    Scaffold { contentPadding ->
+    Scaffold(
+        topBar = {
+            NoteTopBar(
+                title = note?.title ?: "Note Details",
+                showBackButton = true,
+                onBackClick = { navController.navigateUp() }
+            )
+        }
+    ) { contentPadding ->
         if (note != null) {
             Column(modifier = Modifier.padding(contentPadding)) {
                 Text(text = note.title)
@@ -216,7 +248,15 @@ fun CreateEditScreen(navController: NavHostController, viewModel: NoteBookViewMo
     var titleError by remember { mutableStateOf<String?>(null) }
     var textError by remember { mutableStateOf<String?>(null) }
 
-    Scaffold { contentPadding ->
+    Scaffold(
+        topBar = {
+            NoteTopBar(
+                title = if (isEditing) "Edit Note" else "Create Note",
+                showBackButton = true,
+                onBackClick = { navController.navigateUp() }
+            )
+        }
+    ) { contentPadding ->
         Column(modifier = Modifier.padding(contentPadding)) {
             TextField(
                 value = title,

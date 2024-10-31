@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -29,8 +30,30 @@ import com.example.notebookproject.ui.theme.NoteBookProjectTheme
 data class Note(
     val title: String,
     val text: String,
-    val timestamp: Date = Date()
+    val timestamp: Date = Date(),
+    val isStarred: Boolean  = false
 )
+
+class NoteBookViewModel : ViewModel() {
+    private val _notes = mutableStateListOf<Note>()
+    val notes: List<Note> = _notes
+
+    fun addNote(title: String, text: String) {
+        _notes.add(0, Note(title = title, text = text, timestamp = Date()))
+    }
+
+    fun updateNote(index: Int, title: String, text: String) {
+        if (index in _notes.indices) {
+            val existingNote = _notes[index]
+            _notes[index] = existingNote.copy(title = title, text = text, timestamp = existingNote.timestamp)
+        }
+    }
+    fun deleteNote(index: Int) {
+        if (index in _notes.indices) {
+            _notes.removeAt(index)
+        }
+    }
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

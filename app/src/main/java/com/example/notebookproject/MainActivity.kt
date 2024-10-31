@@ -60,35 +60,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoteBookProjectTheme {
                 val navController = rememberNavController()
-                NoteBookNavHost(navController = navController, startDestination = "overview")
+                val viewModel: NoteBookViewModel = viewModel()
+                NoteBookNavHost(
+                    navController = navController,
+                    startDestination = "overview",
+                    viewModel = viewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun NoteBookNavHost(navController: NavHostController, startDestination: String) {
+fun NoteBookNavHost(navController: NavHostController, startDestination: String, viewModel: NoteBookViewModel) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable("overview") { OverviewScreen(navController) }
+        composable("overview") { OverviewScreen(navController, viewModel) }
         composable("detail/{noteIndex}") { backStackEntry ->
             val noteIndex = backStackEntry.arguments?.getString("noteIndex")?.toIntOrNull() ?: 0
-            DetailScreen(navController, noteIndex = noteIndex)
+            DetailScreen(navController, viewModel, noteIndex)
         }
-        composable("create") { CreateEditScreen(navController) }
+        composable("create") { CreateEditScreen(navController, viewModel) }
         composable("edit/{noteIndex}") { backStackEntry ->
             val noteIndex = backStackEntry.arguments?.getString("noteIndex")?.toIntOrNull()
-            CreateEditScreen(navController, noteIndex = noteIndex)
+            CreateEditScreen(navController, viewModel, noteIndex)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OverviewScreen(navController: NavHostController) {
-    val viewModel: NoteBookViewModel = viewModel()
+fun OverviewScreen(navController: NavHostController, viewModel: NoteBookViewModel) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -101,6 +106,8 @@ fun OverviewScreen(navController: NavHostController) {
             )
         }
     ) { padding ->
+        val notes by remember { mutableStateOf(viewModel.notes) }
+
         if (viewModel.notes.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -170,8 +177,7 @@ fun NoteItem(note: Note, onClick: () -> Unit) {
 }
 
 @Composable
-fun DetailScreen(navController: NavHostController, noteIndex: Int) {
-    val viewModel: NoteBookViewModel = viewModel()
+fun DetailScreen(navController: NavHostController, viewModel: NoteBookViewModel, noteIndex: Int) {
     val note = viewModel.notes.getOrNull(noteIndex)
 
     Scaffold { contentPadding ->
@@ -200,8 +206,7 @@ fun DetailScreen(navController: NavHostController, noteIndex: Int) {
 }
 
 @Composable
-fun CreateEditScreen(navController: NavHostController, noteIndex: Int? = null) {
-    val viewModel: NoteBookViewModel = viewModel()
+fun CreateEditScreen(navController: NavHostController, viewModel: NoteBookViewModel, noteIndex: Int? = null) {
     val isEditing = noteIndex != null
     val note = if (isEditing) viewModel.notes.getOrNull(noteIndex!!) else null
 
@@ -267,7 +272,7 @@ fun CreateEditScreen(navController: NavHostController, noteIndex: Int? = null) {
                                 text
                             )
                         }
-                        navController.navigateUp()
+                        navController.popBackStack()
                     }
                 },
                 enabled = titleError == null && textError == null && title.isNotEmpty(),

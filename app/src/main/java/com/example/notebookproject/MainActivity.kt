@@ -31,7 +31,6 @@ data class Note(
     val title: String,
     val text: String,
     val timestamp: Date = Date(),
-    val isStarred: Boolean  = false
 )
 
 class NoteBookViewModel : ViewModel() {
@@ -140,7 +139,7 @@ fun NoteItem(note: Note, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
@@ -258,20 +257,21 @@ fun CreateEditScreen(navController: NavHostController, noteIndex: Int? = null) {
                     if (titleError == null && textError == null) {
                         if (isEditing) {
                             viewModel.updateNote(
-                                index = noteIndex!!,
-                                title = title,
-                                text = text
+                                noteIndex!!,
+                                title,
+                                text
                             )
                         } else {
                             viewModel.addNote(
-                                title = title,
-                                text = text
+                                title,
+                                text
                             )
                         }
                         navController.navigateUp()
                     }
                 },
-                enabled = titleError == null && textError == null
+                enabled = titleError == null && textError == null && title.isNotEmpty(),
+                modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Text(if (isEditing) "Update" else "Create")
             }
